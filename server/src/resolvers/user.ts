@@ -100,7 +100,13 @@ export class UserResolver {
     existUser.tokenVersion += 1;
     await existUser.save();
 
-    res.clearCookie(process.env.REFRESH_TOKEN_COOKIE as string);
+    // clear process.env.REFRESH_TOKEN_COOKIE cookie when logout
+    res.clearCookie(process.env.REFRESH_TOKEN_COOKIE as string, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax', 
+      path: '/refresh-token' // request coming, 
+    });
 
     return {
       code: 200, 

@@ -19,6 +19,7 @@ router.get("/", async (req, res) => {
 
     // token version from params !== decoded user token -> unauthen
     if (!existUser || existUser.tokenVersion !== decodedUser.tokenVersion) {
+      // check token version in the frontend and server
       return res.sendStatus(401).json({ success: false, accessToken: null });
     }
 

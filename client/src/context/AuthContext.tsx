@@ -1,4 +1,4 @@
-import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react"
+import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useState } from "react"
 import JWTManager from '../utils/jwt'
 
 interface IAuthContext {
@@ -25,7 +25,8 @@ export const useAuthContext = () => {
 const AuthContextProvider = (props: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(defaultIsAuthenticated)
 
-  const checkAuth = async () => { 
+  // use Callback: not allow to re-render
+  const checkAuth = useCallback(async () => { 
     const token = JWTManager.getToken()
 
     if (token) {
@@ -36,7 +37,7 @@ const AuthContextProvider = (props: { children: ReactNode }) => {
         setIsAuthenticated(true)
       }
     }
-  }
+  }, []) // dependencies
 
   const logoutClient = () => {
     JWTManager.clearToken();

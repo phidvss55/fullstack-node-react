@@ -6,6 +6,7 @@ import JWTManager from '../utils/jwt'
 function Layout() {
   const { isAuthenticated, logoutClient} = useAuthContext();
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [logoutServer, _] = useLogoutMutation();
 
   const logout = async () => {
