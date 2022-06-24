@@ -1,11 +1,12 @@
 import { LoginInput } from './../types/LoginInput';
 import { RegisterInput } from './../types/RegisterInput';
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
 import { User } from "./../entities/User";
 import 'reflect-metadata';
 import * as argon2 from 'argon2';
 import { UserMutationResponse } from '../types/UserMutationResponse';
-import { createAccessToken } from '../utils/auth';
+import { createAccessToken, sendRefreshToken } from '../utils/auth';
+import { Context } from '../types/Context';
 
 @Resolver()
 export class UserResolver {
@@ -51,6 +52,7 @@ export class UserResolver {
   async login(
     @Arg('loginInput')
     {username, password}: LoginInput,
+    @Ctx() context: Context
   ): Promise<UserMutationResponse> {
     const existUser = await User.findOne({ where: { username } })
     if (!existUser) {
@@ -70,12 +72,39 @@ export class UserResolver {
       }
     }
 
+    sendRefreshToken(context.res, existUser);
+
     return {
       code: 200,
       success: true,
       message: 'Login successful',
       user: existUser,
-      accessToken: createAccessToken(existUser),
+      accessToken: createAccessToken('accessToken', existUser),
+    }
+  }
+
+  @Mutation(_return => UserMutationResponse)
+  async logout(
+    @Arg('userId', _type => ID) userId: number,
+    @Ctx() { res }: Context
+  ) {
+    const existUser = await User.findOne({ where: { id: userId }})
+
+    if (!existUser) {
+      return {
+        code: 400,
+        success: false
+      }
+    }
+
+    existUser.tokenVersion += 1;
+    await existUser.save();
+
+    res.clearCookie(process.env.REFRESH_TOKEN_COOKIE as string);
+
+    return {
+      code: 200, 
+      success: true
     }
   }
 

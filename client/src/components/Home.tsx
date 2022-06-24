@@ -1,7 +1,19 @@
+import { useUsersQuery } from "../generated/graphql";
+
 function Home() {
+  const {data, loading} = useUsersQuery({ fetchPolicy: "no-cache" });
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
-      <h1>Homeeeeeeeeeeeeeeeeeeeeeee</h1>
+      <ul>
+        {data!.users.map(user => (
+          <li key={user.id}>{user.username}</li>
+        ))}
+      </ul>
     </div>
   )
 }

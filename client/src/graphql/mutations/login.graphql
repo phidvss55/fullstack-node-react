@@ -1,0 +1,16 @@
+mutation Login($loginInput: LoginInput!) {
+  login(loginInput: $loginInput) {
+    code
+    success
+    message
+    accessToken
+  }
+}
+
+# mutation Logout($logoutInput: LogoutInput!) {
+#   logout(logoutInput: $logoutInput) {
+#     code
+#     success
+#     message
+#   }
+# }
